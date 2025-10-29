@@ -136,7 +136,7 @@ class Model:
         return None
 
     # ========== Conversão ==========
-    def to_tk_image(self, cv_image):
+    def to_tk_image(self, cv_image, max_width=None, max_height=None):
         if cv_image is None:
             return None
         
@@ -146,4 +146,9 @@ class Model:
             rgb = cv_image
         
         img = Image.fromarray(rgb)
+        
+        # Redimensiona se especificado
+        if max_width and max_height:
+            img.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
+        
         return ImageTk.PhotoImage(img)

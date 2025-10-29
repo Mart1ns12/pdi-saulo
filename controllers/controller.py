@@ -17,6 +17,11 @@ class Controller:
     # ========== Métodos principais ==========
     def run(self):
         self.root.mainloop()
+    
+    def _get_resized_image(self, cv_image):
+        """Obtém uma versão redimensionada da imagem para exibição"""
+        max_width, max_height = self.view.image_panel._get_max_image_size()
+        return self.model.to_tk_image(cv_image, max_width, max_height)
 
     def open_image(self):
         path = filedialog.askopenfilename(
@@ -27,9 +32,13 @@ class Controller:
             # Carrega imagem original
             original_image = self.model.load_image(path)
             if original_image:
+                # Cria versões redimensionadas das imagens
+                original_resized = self._get_resized_image(self.model.original)
+                processed_resized = self._get_resized_image(self.model.processed)
+                
                 # Exibe imagem original e processada
-                self.view.image_panel.show_original_image(original_image)
-                self.view.image_panel.show_processed_image(original_image)
+                self.view.image_panel.show_original_image(original_resized)
+                self.view.image_panel.show_processed_image(processed_resized)
                 
                 # Atualiza histograma
                 self.view.control_panel.update_histogram(self.model.processed)
@@ -50,12 +59,16 @@ class Controller:
 
     def reset_image(self):
         """Reset imagem para estado original"""
-        original_image = self.model.get_original_tk_image()
-        processed_image = self.model.reset_image()
+        # Reset da imagem processada
+        self.model.reset_image()
         
-        if original_image and processed_image:
-            self.view.image_panel.show_original_image(original_image)
-            self.view.image_panel.show_processed_image(processed_image)
+        # Cria versões redimensionadas das imagens
+        original_resized = self._get_resized_image(self.model.original)
+        processed_resized = self._get_resized_image(self.model.processed)
+        
+        if original_resized and processed_resized:
+            self.view.image_panel.show_original_image(original_resized)
+            self.view.image_panel.show_processed_image(processed_resized)
             self.view.control_panel.update_histogram(self.model.processed)
             self.view.log_action("Imagem resetada para estado original.")
 
@@ -63,35 +76,40 @@ class Controller:
     def convert_to_rgba(self):
         result = self.model.convert_to_rgba()
         if result:
-            self.view.image_panel.show_processed_image(result)
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
             self.view.control_panel.update_histogram(self.model.processed)
             self.view.log_action("Conversão RGB → RGBA aplicada.")
 
     def convert_to_cmyk(self):
         result = self.model.convert_to_cmyk()
         if result:
-            self.view.image_panel.show_processed_image(result)
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
             self.view.control_panel.update_histogram(self.model.processed)
             self.view.log_action("Conversão RGB → CMYK aplicada.")
 
     def convert_to_hsv(self):
         result = self.model.convert_to_hsv()
         if result:
-            self.view.image_panel.show_processed_image(result)
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
             self.view.control_panel.update_histogram(self.model.processed)
             self.view.log_action("Conversão RGB → HSV aplicada.")
 
     def convert_to_lab(self):
         result = self.model.convert_to_lab()
         if result:
-            self.view.image_panel.show_processed_image(result)
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
             self.view.control_panel.update_histogram(self.model.processed)
             self.view.log_action("Conversão RGB → LAB aplicada.")
 
     def convert_to_gray(self):
         result = self.model.convert_to_gray()
         if result:
-            self.view.image_panel.show_processed_image(result)
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
             self.view.control_panel.update_histogram(self.model.processed)
             self.view.log_action("Conversão para tons de cinza aplicada.")
 
@@ -115,7 +133,8 @@ class Controller:
             result = self.model.adjust_brightness(brightness)
         
         if result:
-            self.view.image_panel.show_processed_image(result)
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
             self.view.control_panel.update_histogram(self.model.processed)
 
     def update_contrast(self, contrast):
@@ -130,7 +149,8 @@ class Controller:
             result = self.model.adjust_contrast(contrast)
         
         if result:
-            self.view.image_panel.show_processed_image(result)
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
             self.view.control_panel.update_histogram(self.model.processed)
 
     def apply_brightness_contrast(self, brightness, contrast):
@@ -145,7 +165,8 @@ class Controller:
         """Atualiza threshold em tempo real - sempre a partir da imagem original"""
         result = self.model.apply_binary_threshold(threshold)
         if result:
-            self.view.image_panel.show_processed_image(result)
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
             self.view.control_panel.update_histogram(self.model.processed)
 
     # ========== Diálogos de Ajuste ==========
