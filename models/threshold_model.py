@@ -156,6 +156,30 @@ class ThresholdModel:
         
         return thresholds
 
+    def quantize_threshold(self, image, num_levels=4):
+        """Quantiza a imagem em N tons de cinza (uniforme).
+
+        - Aceita imagem BGR ou escala de cinza
+        - Retorna imagem BGR para manter consistência
+        """
+        if len(image.shape) == 3:
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        else:
+            gray = image.copy()
+
+        # Garante um número válido de níveis
+        try:
+            num_levels = int(num_levels)
+        except Exception:
+            num_levels = 4
+        num_levels = max(2, min(256, num_levels))
+
+        # Quantização uniforme por divisão inteira
+        level_size = max(1, 256 // num_levels)
+        quantized = (gray // level_size) * level_size
+
+        return cv2.cvtColor(quantized.astype(np.uint8), cv2.COLOR_GRAY2BGR)
+
     def to_tk_image(self, cv_image):
         """Converte imagem OpenCV para formato Tkinter"""
         if len(cv_image.shape) == 3:

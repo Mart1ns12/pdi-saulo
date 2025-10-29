@@ -223,3 +223,16 @@ class Controller:
 
     def log_action(self, text):
         self.view.control_panel.add_log(text)
+
+    # ========== Quantização em tons de cinza ==========
+    def apply_quantize_gray(self, num_levels=None):
+        if num_levels is None and hasattr(self.view.control_panel, 'num_levels_var'):
+            num_levels = self.view.control_panel.num_levels_var.get()
+        if num_levels is None:
+            num_levels = 4
+
+        result = self.model.apply_quantize_threshold(num_levels)
+        if result:
+            self.view.image_panel.show_processed_image(result)
+            self.view.control_panel.update_histogram(self.model.processed)
+            self.view.log_action(f"Quantização em tons de cinza aplicada (N={num_levels}).")

@@ -128,6 +128,13 @@ class Model:
             return self.to_tk_image(self.processed)
         return None
 
+    def apply_quantize_threshold(self, num_levels=4):
+        """Aplica quantização em N tons de cinza sempre a partir da original"""
+        if self.original is not None:
+            self.processed = self.threshold_model.quantize_threshold(self.original.copy(), num_levels)
+            return self.to_tk_image(self.processed)
+        return None
+
     # ========== Conversão ==========
     def to_tk_image(self, cv_image):
         if cv_image is None:

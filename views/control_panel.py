@@ -16,6 +16,7 @@ class ControlPanel:
         self._create_histogram_section()
         self._create_sliders_section()
         self._create_buttons_section()
+        self._create_quantize_section()
         self._create_log_section()
 
     def _create_histogram_section(self):
@@ -96,6 +97,35 @@ class ControlPanel:
             bg="#2196F3", fg="white", font=("Arial", 9, "bold")
         )
         self.equalize_btn.pack(fill="x", pady=2)
+
+    def _create_quantize_section(self):
+        """Cria seção da quantização (tons de cinza)"""
+        q_frame = tk.Frame(self.frame, bg="#333")
+        q_frame.pack(fill="x", padx=5, pady=5)
+
+        tk.Label(q_frame, text="Quantização (tons de cinza)", fg="white", bg="#333", font=("Arial", 10, "bold")).pack(anchor="w")
+
+        row = tk.Frame(q_frame, bg="#333")
+        row.pack(fill="x", pady=2)
+
+        tk.Label(row, text="N níveis:", fg="white", bg="#333", font=("Arial", 9)).pack(side="left")
+        self.num_levels_var = tk.IntVar(value=4)
+        self.num_levels_spin = tk.Spinbox(
+            row, from_=2, to=16, textvariable=self.num_levels_var, width=5,
+            bg="#444", fg="white", insertbackground="white"
+        )
+        self.num_levels_spin.pack(side="left", padx=6)
+
+        apply_btn = tk.Button(
+            q_frame, text="Aplicar Quantização", command=self._apply_quantize,
+            bg="#795548", fg="white", font=("Arial", 9, "bold")
+        )
+        apply_btn.pack(fill="x", pady=2)
+
+    def _apply_quantize(self):
+        if hasattr(self.controller, 'apply_quantize_gray'):
+            n = self.num_levels_var.get()
+            self.controller.apply_quantize_gray(n)
 
     def _create_log_section(self):
         """Cria seção do log"""
