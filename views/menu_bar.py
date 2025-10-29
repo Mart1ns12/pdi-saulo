@@ -40,6 +40,13 @@ class MenuBar:
         segmentation_menu.add_command(label="Limiarização Adaptativa (Gaussiana)", command=controller.apply_adaptive_threshold_gaussian)
         self.menubar.add_cascade(label="Segmentação", menu=segmentation_menu)
 
+        # Menu Detecção de Bordas
+        edges_menu = tk.Menu(self.menubar, tearoff=0)
+        edges_menu.add_command(label="Sobel...", command=controller.show_sobel_dialog)
+        edges_menu.add_command(label="Laplaciano...", command=controller.show_laplacian_dialog)
+        edges_menu.add_command(label="Canny...", command=controller.show_canny_dialog)
+        self.menubar.add_cascade(label="Detecção de Bordas", menu=edges_menu)
+
         # Menu Filtros (mantido para compatibilidade)
         filter_menu = tk.Menu(self.menubar, tearoff=0)
         filter_menu.add_command(label="Converter para tons de cinza", command=controller.convert_to_gray)

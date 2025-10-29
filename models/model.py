@@ -4,6 +4,7 @@ import numpy as np
 from models.color_model import ColorModel
 from models.histogram_model import HistogramModel
 from models.threshold_model import ThresholdModel
+from models.edge_model import EdgeModel
 
 class Model:
     def __init__(self):
@@ -14,6 +15,7 @@ class Model:
         self.color_model = ColorModel()
         self.histogram_model = HistogramModel()
         self.threshold_model = ThresholdModel()
+        self.edge_model = EdgeModel()
 
     def load_image(self, path):
         """Carrega imagem e define como original"""
@@ -132,6 +134,28 @@ class Model:
         """Aplica quantização em N tons de cinza sempre a partir da original"""
         if self.original is not None:
             self.processed = self.threshold_model.quantize_threshold(self.original.copy(), num_levels)
+            return self.to_tk_image(self.processed)
+        return None
+
+    # ========== Detecção de Bordas (sobreposição na imagem processada) ==========
+    def apply_sobel(self, ksize=3):
+        if self.processed is not None:
+            edges = self.edge_model.detect_sobel_edges(self.processed, ksize=ksize)
+            self.processed = self.edge_model.overlay_edges_on_image(self.processed, edges)
+            return self.to_tk_image(self.processed)
+        return None
+
+    def apply_laplacian(self, ksize=3):
+        if self.processed is not None:
+            edges = self.edge_model.detect_laplacian_edges(self.processed, ksize=ksize)
+            self.processed = self.edge_model.overlay_edges_on_image(self.processed, edges)
+            return self.to_tk_image(self.processed)
+        return None
+
+    def apply_canny(self, threshold1=100, threshold2=200, blur_ksize=3):
+        if self.processed is not None:
+            edges = self.edge_model.detect_canny_edges(self.processed, threshold1=threshold1, threshold2=threshold2, blur_ksize=blur_ksize)
+            self.processed = self.edge_model.overlay_edges_on_image(self.processed, edges)
             return self.to_tk_image(self.processed)
         return None
 

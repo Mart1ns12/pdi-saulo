@@ -117,7 +117,8 @@ class Controller:
     def apply_equalization(self):
         result = self.model.equalize_histogram()
         if result:
-            self.view.image_panel.show_processed_image(result)
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
             self.view.control_panel.update_histogram(self.model.processed)
             self.view.log_action("Equalização de histograma aplicada.")
 
@@ -176,7 +177,8 @@ class Controller:
         if brightness is not None:
             result = self.model.adjust_brightness(brightness)
             if result:
-                self.view.image_panel.show_processed_image(result)
+                resized_result = self._get_resized_image(self.model.processed)
+                self.view.image_panel.show_processed_image(resized_result)
                 self.view.control_panel.update_histogram(self.model.processed)
                 self.view.log_action(f"Brilho ajustado para: {brightness}")
 
@@ -186,7 +188,8 @@ class Controller:
         if contrast is not None:
             result = self.model.adjust_contrast(contrast)
             if result:
-                self.view.image_panel.show_processed_image(result)
+                resized_result = self._get_resized_image(self.model.processed)
+                self.view.image_panel.show_processed_image(resized_result)
                 self.view.control_panel.update_histogram(self.model.processed)
                 self.view.log_action(f"Contraste ajustado para: {contrast}")
 
@@ -199,7 +202,8 @@ class Controller:
             if contrast is not None:
                 result = self.model.adjust_brightness_contrast(brightness, contrast)
                 if result:
-                    self.view.image_panel.show_processed_image(result)
+                    resized_result = self._get_resized_image(self.model.processed)
+                    self.view.image_panel.show_processed_image(resized_result)
                     self.view.control_panel.update_histogram(self.model.processed)
                     self.view.log_action(f"Brilho: {brightness}, Contraste: {contrast} aplicados.")
 
@@ -209,7 +213,8 @@ class Controller:
         if threshold is not None:
             result = self.model.apply_binary_threshold(threshold)
             if result:
-                self.view.image_panel.show_processed_image(result)
+                resized_result = self._get_resized_image(self.model.processed)
+                self.view.image_panel.show_processed_image(resized_result)
                 self.view.control_panel.update_histogram(self.model.processed)
                 self.view.log_action(f"Limiarização binária aplicada com threshold: {threshold}")
 
@@ -217,21 +222,24 @@ class Controller:
     def apply_otsu_threshold(self):
         result = self.model.apply_otsu_threshold()
         if result:
-            self.view.image_panel.show_processed_image(result)
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
             self.view.control_panel.update_histogram(self.model.processed)
             self.view.log_action("Limiarização Otsu aplicada.")
 
     def apply_adaptive_threshold_mean(self):
         result = self.model.apply_adaptive_threshold('mean')
         if result:
-            self.view.image_panel.show_processed_image(result)
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
             self.view.control_panel.update_histogram(self.model.processed)
             self.view.log_action("Limiarização adaptativa (média) aplicada.")
 
     def apply_adaptive_threshold_gaussian(self):
         result = self.model.apply_adaptive_threshold('gaussian')
         if result:
-            self.view.image_panel.show_processed_image(result)
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
             self.view.control_panel.update_histogram(self.model.processed)
             self.view.log_action("Limiarização adaptativa (Gaussiana) aplicada.")
 
@@ -254,6 +262,64 @@ class Controller:
 
         result = self.model.apply_quantize_threshold(num_levels)
         if result:
-            self.view.image_panel.show_processed_image(result)
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
             self.view.control_panel.update_histogram(self.model.processed)
             self.view.log_action(f"Quantização em tons de cinza aplicada (N={num_levels}).")
+
+    # ========== Detecção de Bordas ==========
+    def show_sobel_dialog(self):
+        if self.model.processed is None:
+            messagebox.showwarning("Aviso", "Nenhuma imagem carregada.")
+            return
+        ksize = simpledialog.askinteger("Sobel", "Tamanho do kernel (1,3,5,7):", minvalue=1, maxvalue=7, initialvalue=3)
+        if ksize is None:
+            return
+        if ksize % 2 == 0:
+            ksize += 1
+        result = self.model.apply_sobel(ksize=ksize)
+        if result:
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
+            self.view.control_panel.update_histogram(self.model.processed)
+            self.view.log_action(f"Sobel aplicado (ksize={ksize}).")
+
+    def show_laplacian_dialog(self):
+        if self.model.processed is None:
+            messagebox.showwarning("Aviso", "Nenhuma imagem carregada.")
+            return
+        ksize = simpledialog.askinteger("Laplaciano", "Tamanho do kernel (1,3,5,7):", minvalue=1, maxvalue=7, initialvalue=3)
+        if ksize is None:
+            return
+        if ksize % 2 == 0:
+            ksize += 1
+        result = self.model.apply_laplacian(ksize=ksize)
+        if result:
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
+            self.view.control_panel.update_histogram(self.model.processed)
+            self.view.log_action(f"Laplaciano aplicado (ksize={ksize}).")
+
+    def show_canny_dialog(self):
+        if self.model.processed is None:
+            messagebox.showwarning("Aviso", "Nenhuma imagem carregada.")
+            return
+        t1 = simpledialog.askinteger("Canny", "Threshold1 (0-255):", minvalue=0, maxvalue=255, initialvalue=100)
+        if t1 is None:
+            return
+        t2 = simpledialog.askinteger("Canny", "Threshold2 (0-255):", minvalue=0, maxvalue=255, initialvalue=200)
+        if t2 is None:
+            return
+        if t2 < t1:
+            t2 = t1
+        k = simpledialog.askinteger("Canny", "Gaussian blur ksize (1,3,5,7):", minvalue=1, maxvalue=7, initialvalue=3)
+        if k is None:
+            return
+        if k % 2 == 0:
+            k += 1
+        result = self.model.apply_canny(threshold1=t1, threshold2=t2, blur_ksize=k)
+        if result:
+            resized_result = self._get_resized_image(self.model.processed)
+            self.view.image_panel.show_processed_image(resized_result)
+            self.view.control_panel.update_histogram(self.model.processed)
+            self.view.log_action(f"Canny aplicado (t1={t1}, t2={t2}, blur={k}).")
