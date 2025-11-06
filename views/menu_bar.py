@@ -42,9 +42,7 @@ class MenuBar:
 
         # Menu Detecção de Bordas
         edges_menu = tk.Menu(self.menubar, tearoff=0)
-        edges_menu.add_command(label="Sobel...", command=controller.show_sobel_dialog)
-        edges_menu.add_command(label="Laplaciano...", command=controller.show_laplacian_dialog)
-        edges_menu.add_command(label="Canny...", command=controller.show_canny_dialog)
+        edges_menu.add_command(label="Aplicar Detecção (Sobel)", command=controller.show_sobel_dialog)
         self.menubar.add_cascade(label="Detecção de Bordas", menu=edges_menu)
 
         # Menu Filtros (mantido para compatibilidade)
